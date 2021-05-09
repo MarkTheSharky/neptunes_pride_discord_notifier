@@ -3,7 +3,7 @@ import pickle
 
 game_number = 4987803371569152
 game_API_key = "xBTVIL"
-round_tick_length = 1
+# round_tick_length = 1
 
 root = "https://np.ironhelmet.com/api"
 params = {"game_number" : game_number,
@@ -44,6 +44,9 @@ current_tick = payload['scanning_data']['tick']
 if current_tick > last_tick:
     pickle_last_tick(current_tick)
     print('New turn!')
-    print('We are on tick ' + str(last_tick))
+    print('We are on tick ' + str(last_tick + 1))
 else:
     print('Still waiting...')
+
+
+# print("Payload: ", payload['scanning_data']['players']['4'])
