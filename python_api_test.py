@@ -11,6 +11,8 @@ params = {"game_number" : game_number,
           "api_version" : "0.1"}
 payload = requests.post(root, params).json()
 
+print(payload['scanning_data']['tick']) 
+
 
 # Tick = Hour in game time
 
@@ -36,17 +38,17 @@ def check_pickle_file_is_not_empty():
 
 
 
-last_tick = check_pickle_file_is_not_empty()
+# last_tick = check_pickle_file_is_not_empty()
 # print("Last Tick: ", last_tick)
-current_tick = payload['scanning_data']['tick']
+# current_tick = payload['scanning_data']['tick']
 # print("Current Tick: ", current_tick)
 
-if current_tick > last_tick:
-    pickle_last_tick(current_tick)
-    print('New turn!')
-    print('We are on tick ' + str(last_tick + 1))
-else:
-    print('Still waiting...')
+# if current_tick > last_tick:
+#     pickle_last_tick(current_tick)
+#     print('New turn!')
+#     print('We are on tick ' + str(last_tick + 1))
+# else:
+#     print('Still waiting...')
 
 
 # print("Payload: ", payload['scanning_data']['players']['4'])
