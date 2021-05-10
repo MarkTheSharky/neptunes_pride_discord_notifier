@@ -4,6 +4,8 @@ from discord.ext import commands, tasks
 from dotenv import load_dotenv
 import requests
 import pickle
+from datetime import datetime
+import time
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
@@ -13,12 +15,13 @@ game_number = 4987803371569152
 game_API_key = "xBTVIL"
 filename = 'pickled_tick'
 
-
-root = "https://np.ironhelmet.com/api"
-params = {"game_number" : game_number,
-                 "code" : game_API_key,
-          "api_version" : "0.1"}
-payload = requests.post(root, params).json()
+def call_neptunes_api():
+    root = "https://np.ironhelmet.com/api"
+    params = {"game_number" : game_number,
+                     "code" : game_API_key,
+              "api_version" : "0.1"}
+    payload = requests.post(root, params).json()
+    return payload
 
 def pickle_last_tick(current_tick):
     print("pickle_last_tick called")
@@ -41,8 +44,12 @@ def check_pickle_file_is_not_empty():
     except EOFError:
         return 0
 
-last_tick = check_pickle_file_is_not_empty()
-current_tick = payload['scanning_data']['tick']
+
+
+payload = {}
+last_tick = 0
+current_tick = 0
+
 client = discord.Client()
 
 @client.event
@@ -53,14 +60,19 @@ async def on_ready():
 
 @tasks.loop(minutes=5)
 async def post_when_new_turn():
-    # print('Last tick: ', last_tick)
-    # print('Current tick: ', current_tick)
+    global payload, last_tick, current_tick
+    payload = call_neptunes_api()
+    last_tick = check_pickle_file_is_not_empty()
+    time.sleep(5)
+    # print("Payload tick: " + str(payload['scanning_data']['tick']))
+    current_tick = payload['scanning_data']['tick']
+    print("post_when_new_turn has ran at " + str(datetime.now()))
+    print('Last tick: ', last_tick)
+    print('Current tick: ', current_tick)
     if current_tick > last_tick:
         pickle_last_tick(current_tick)
-        # print('New turn!')
-        # print('We are on tick ' + str(last_tick + 1))
         channel = client.get_channel(840646529328349184)
-        await channel.send('New turn! We are now on ' + str(current_tick))
+        await channel.send('New turn! We are now on tick ' + str(current_tick))
     else:
         pass
 
